@@ -17,5 +17,3 @@ setup(
         ]
     }
 )
-
-# pyinstaller --onefile --windowed --name="表格拆分工具" table_splitting.py

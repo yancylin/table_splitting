@@ -1,98 +1,6 @@
-import pandas as pd
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import os
-
-
-class ExcelFilter:
-    def __init__(self):
-        self.data_df = None
-        self.filter_df = None
-
-    def load_data(self, file_path, sheet_name=None):
-        """加载主数据文件"""
-        try:
-            if file_path.endswith(('.xlsx', '.xls')):
-                if sheet_name:
-                    self.data_df = pd.read_excel(file_path, sheet_name=sheet_name)
-                else:
-                    self.data_df = pd.read_excel(file_path)
-            elif file_path.endswith('.csv'):
-                self.data_df = pd.read_csv(file_path, encoding='utf-8')
-            return self.data_df
-        except Exception as e:
-            raise ValueError(f"读取数据文件失败: {str(e)}")
-
-    def load_filter(self, file_path, sheet_name=None):
-        """加载筛选条件文件"""
-        try:
-            if file_path.endswith(('.xlsx', '.xls')):
-                if sheet_name:
-                    self.filter_df = pd.read_excel(file_path, sheet_name=sheet_name)
-                else:
-                    self.filter_df = pd.read_excel(file_path)
-            elif file_path.endswith('.csv'):
-                self.filter_df = pd.read_csv(file_path, encoding='utf-8')
-            return self.filter_df
-        except Exception as e:
-            raise ValueError(f"读取筛选条件文件失败: {str(e)}")
-
-    def filter_by_column(self, data_column, filter_column=None):
-        """
-        根据指定列进行筛选
-
-        参数:
-        - data_column: 主数据中用于筛选的列名
-        - filter_column: 筛选条件中的列名（如为None，则使用第一列）
-        """
-        if self.data_df is None or self.filter_df is None:
-            raise ValueError("请先加载数据文件和筛选条件文件")
-
-        # 获取筛选值
-        if filter_column:
-            filter_values = self.filter_df[filter_column].dropna().tolist()
-        else:
-            filter_values = self.filter_df.iloc[:, 0].dropna().tolist()
-
-        # 执行筛选
-        filtered_result = self.data_df[self.data_df[data_column].isin(filter_values)]
-        print(f"筛选结果：{len(filtered_result)} 条")
-        return filtered_result
-
-    def export_result(self, result_df, output_file='result.xlsx'):
-        """导出筛选结果"""
-        try:
-            if output_file.endswith('.xlsx'):
-                result_df.to_excel(output_file, index=False)
-            elif output_file.endswith('.csv'):
-                result_df.to_csv(output_file, index=False, encoding='utf-8')
-            print(f"结果已导出到: {output_file}")
-            return True
-        except Exception as e:
-            raise ValueError(f"导出文件失败: {str(e)}")
-
-    def sum_column(self, df, column_name):
-        """
-        统计指定列的金额合计
-
-        参数:
-        - df: 需要统计的数据DataFrame
-        - column_name: 需要统计的列名
-
-        返回:
-        - 该列的数值合计
-        """
-        if df is None:
-            raise ValueError("数据为空，请先加载数据")
-
-        if column_name not in df.columns:
-            raise ValueError(f"列 '{column_name}' 不存在于数据中")
-
-        # 计算指定列的合计值，忽略NaN值
-        total = df[column_name].sum()
-        print(f"列 '{column_name}' 的合计金额为: {total}")
-        return total
-
 
 class PlateAnalyzerApp:
     def __init__(self, root):
@@ -107,6 +15,7 @@ class PlateAnalyzerApp:
         except:
             pass
 
+        from excel_filter import ExcelFilter
         self.analyzer = ExcelFilter()
         self.data_file_path = None
         self.filter_file_path = None
@@ -451,18 +360,3 @@ class PlateAnalyzerApp:
         except Exception as e:
             messagebox.showerror("导出失败", str(e))
             self.status_var.set("导出失败")
-
-
-def main():
-    # 创建主窗口
-    root = tk.Tk()
-
-    # 设置应用程序
-    app = PlateAnalyzerApp(root)
-
-    # 启动主循环
-    root.mainloop()
-
-
-if __name__ == "__main__":
-    main()

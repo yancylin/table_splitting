@@ -1,2 +1,6 @@
 pip install pyinstaller pandas openpyxl xlrd
-pyinstaller table_splitting.spec
+pyinstaller main.spec
+
+
+
+# pyinstaller --onefile --windowed --name="表格拆分工具" main.py
