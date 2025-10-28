@@ -1,0 +1,2 @@
+pip install pyinstaller pandas openpyxl xlrd
+pyinstaller table_splitting.spec
