@@ -98,7 +98,7 @@ class PlateAnalyzerApp:
     def __init__(self, root):
         self.root = root
         self.root.title("表格拆分")
-        self.root.geometry("700x800")
+        self.root.geometry("800x800")
         self.root.resizable(True, True)
 
         # 设置图标（如果有的话）
@@ -116,23 +116,36 @@ class PlateAnalyzerApp:
         self.setup_ui()
 
     def setup_ui(self):
-        """设置用户界面"""
+        """设置用户界面 - 左右两列布局"""
         # 主框架
-        main_frame = ttk.Frame(self.root, padding="20")
+        main_frame = ttk.Frame(self.root, padding="10")
         main_frame.pack(fill=tk.BOTH, expand=True)
 
         # 标题
         title_label = ttk.Label(main_frame, text="表格拆分工具",
                                 font=("Arial", 16, "bold"))
-        title_label.pack(pady=(0, 20))
+        title_label.pack(pady=(0, 10))
 
         # 说明文本
         desc_text = "本工具用于拆分表格，可以根据一个表中的列，筛选出符合条件的数据"
         desc_label = ttk.Label(main_frame, text=desc_text, wraplength=600)
-        desc_label.pack(pady=(0, 20))
+        desc_label.pack(pady=(0, 10))
 
+        # 创建左右两列框架
+        content_frame = ttk.Frame(main_frame)
+        content_frame.pack(fill=tk.BOTH, expand=True)
+
+        # 左侧操作区域
+        left_frame = ttk.Frame(content_frame)
+        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0, 5))
+
+        # 右侧结果显示区域
+        right_frame = ttk.Frame(content_frame)
+        right_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=(5, 0))
+
+        # 左侧操作控件
         # 数据文件选择区域
-        data_file_frame = ttk.LabelFrame(main_frame, text="1. 选择数据源文件", padding="10")
+        data_file_frame = ttk.LabelFrame(left_frame, text="1. 选择数据源文件", padding="10")
         data_file_frame.pack(fill=tk.X, pady=(0, 10))
 
         self.data_file_label = ttk.Label(data_file_frame, text="未选择文件")
@@ -143,7 +156,7 @@ class PlateAnalyzerApp:
         data_file_button.pack(pady=(5, 0))
 
         # 数据列选择区域
-        data_column_frame = ttk.LabelFrame(main_frame, text="2. 选择数据源筛选列", padding="10")
+        data_column_frame = ttk.LabelFrame(left_frame, text="2. 选择数据源筛选列", padding="10")
         data_column_frame.pack(fill=tk.X, pady=(0, 10))
 
         ttk.Label(data_column_frame, text="选择需要筛选的列:").pack(anchor=tk.W)
@@ -153,7 +166,7 @@ class PlateAnalyzerApp:
         self.data_column_combo.pack(fill=tk.X, pady=(5, 0))
 
         # 筛选条件文件选择区域
-        filter_file_frame = ttk.LabelFrame(main_frame, text="3. 选择筛选条件文件", padding="10")
+        filter_file_frame = ttk.LabelFrame(left_frame, text="3. 选择筛选条件文件", padding="10")
         filter_file_frame.pack(fill=tk.X, pady=(0, 10))
 
         self.filter_file_label = ttk.Label(filter_file_frame, text="未选择文件")
@@ -164,7 +177,7 @@ class PlateAnalyzerApp:
         filter_file_button.pack(pady=(5, 0))
 
         # 筛选条件列选择区域
-        filter_column_frame = ttk.LabelFrame(main_frame, text="4. 选择筛选条件列", padding="10")
+        filter_column_frame = ttk.LabelFrame(left_frame, text="4. 选择筛选条件列", padding="10")
         filter_column_frame.pack(fill=tk.X, pady=(0, 10))
 
         ttk.Label(filter_column_frame, text="选择筛选条件列:").pack(anchor=tk.W)
@@ -174,8 +187,19 @@ class PlateAnalyzerApp:
                                                 state="readonly")
         self.filter_column_combo.pack(fill=tk.X, pady=(5, 0))
 
+        # 统计列选择区域
+        stats_column_frame = ttk.LabelFrame(left_frame, text="5. 选择统计数据列（可选）", padding="10")
+        stats_column_frame.pack(fill=tk.X, pady=(0, 10))
+
+        ttk.Label(stats_column_frame, text="选择需要统计的列:").pack(anchor=tk.W)
+
+        self.stats_column_var = tk.StringVar()
+        self.stats_column_combo = ttk.Combobox(stats_column_frame, textvariable=self.stats_column_var,
+                                               state="readonly")
+        self.stats_column_combo.pack(fill=tk.X, pady=(5, 0))
+
         # 分析按钮
-        button_frame = ttk.Frame(main_frame)
+        button_frame = ttk.Frame(left_frame)
         button_frame.pack(pady=20)
 
         analyze_button = ttk.Button(button_frame, text="开始筛选",
@@ -188,15 +212,15 @@ class PlateAnalyzerApp:
         export_button.pack(side=tk.LEFT)
         self.export_button = export_button
 
-        # 结果显示区域
-        result_frame = ttk.LabelFrame(main_frame, text="筛选结果", padding="10")
-        result_frame.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
+        # 右侧结果显示区域
+        result_frame = ttk.LabelFrame(right_frame, text="筛选结果", padding="10")
+        result_frame.pack(fill=tk.BOTH, expand=True)
 
         # 创建文本框和滚动条
         text_frame = ttk.Frame(result_frame)
         text_frame.pack(fill=tk.BOTH, expand=True)
 
-        self.result_text = tk.Text(text_frame, height=10)
+        self.result_text = tk.Text(text_frame, height=20)
         scrollbar = ttk.Scrollbar(text_frame, orient=tk.VERTICAL, command=self.result_text.yview)
         self.result_text.configure(yscrollcommand=scrollbar.set)
 
@@ -235,15 +259,18 @@ class PlateAnalyzerApp:
                 self.data_dataframe = self.analyzer.load_data(filename)
 
                 # 更新列名下拉框
-                self.data_column_combo['values'] = list(self.data_dataframe.columns)
-                if len(self.data_dataframe.columns) > 0:
+                columns = list(self.data_dataframe.columns)
+                self.data_column_combo['values'] = columns
+                self.stats_column_combo['values'] = columns
+
+                if len(columns) > 0:
                     self.data_column_combo.current(0)
 
                 self.result_text.delete(1.0, tk.END)
                 self.result_text.insert(tk.END, f"数据文件加载成功!\n")
                 self.result_text.insert(tk.END, f"数据行数: {self.data_dataframe.shape[0]}\n")
                 self.result_text.insert(tk.END, f"数据列数: {self.data_dataframe.shape[1]}\n")
-                self.result_text.insert(tk.END, f"可用列: {', '.join(self.data_dataframe.columns)}\n\n")
+                self.result_text.insert(tk.END, f"可用列: {', '.join(columns)}\n\n")
 
                 # 检查是否可以启用分析按钮
                 self.check_analysis_ready()
@@ -340,8 +367,36 @@ class PlateAnalyzerApp:
             self.result_text.insert(tk.END, f"筛选后行数: {len(result_df)}\n")
             self.result_text.insert(tk.END, f"筛选条件数量: {len(self.analyzer.filter_df)}\n\n")
 
+            # 如果选择了统计列，则计算统计信息
+            stats_column = self.stats_column_var.get()
+            if stats_column and stats_column in result_df.columns:
+                try:
+                    total = self.analyzer.sum_column(result_df, stats_column)
+                    self.result_text.insert(tk.END, f"列 '{stats_column}' 的合计: {total}\n\n")
+                except Exception as e:
+                    self.result_text.insert(tk.END, f"统计列 '{stats_column}' 时出错: {str(e)}\n\n")
+
             if len(result_df) > 0:
-                self.result_text.insert(tk.END, "前10行数据预览:\n")
+                # 添加基本统计信息
+                self.result_text.insert(tk.END, "=== 数据统计 ===\n")
+                # 统计数值型列的基本信息
+                numeric_columns = result_df.select_dtypes(include=['number']).columns.tolist()
+                if numeric_columns:
+                    self.result_text.insert(tk.END, f"数值型列: {', '.join(numeric_columns)}\n")
+                    for col in numeric_columns:
+                        col_sum = result_df[col].sum()
+                        col_mean = result_df[col].mean()
+                        col_count = result_df[col].count()
+                        self.result_text.insert(tk.END,
+                                                f"  {col} - 总和: {col_sum}, 平均值: {col_mean:.2f}, 有效值数量: {col_count}\n")
+
+                # 显示各列非空值数量
+                self.result_text.insert(tk.END, "\n各列非空值统计:\n")
+                for col in result_df.columns:
+                    non_null_count = result_df[col].count()
+                    self.result_text.insert(tk.END, f"  {col}: {non_null_count}/{len(result_df)}\n")
+
+                self.result_text.insert(tk.END, "\n前10行数据预览:\n")
                 self.result_text.insert(tk.END, str(result_df.head(10)) + "\n")
 
             # 存储结果并启用导出按钮
