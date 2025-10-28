@@ -32,7 +32,7 @@ jobs:
         pyinstaller --onefile --windowed table_splitting.py
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: table-splitting-exe
         path: dist/table_splitting.exe
