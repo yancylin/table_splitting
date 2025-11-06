@@ -100,6 +100,18 @@ class PlateAnalyzerApp:
         stats_column_frame = ttk.LabelFrame(left_frame, text="5. 选择统计数据列（可选）", padding="10")
         stats_column_frame.pack(fill=tk.X, pady=(0, 10))
 
+        # 新增功能：筛选表2中不存在的数据
+        missing_data_frame = ttk.LabelFrame(left_frame, text="6. 筛选选项", padding="10")
+        missing_data_frame.pack(fill=tk.X, pady=(0, 10))
+
+        self.exclude_missing_var = tk.BooleanVar()
+        exclude_missing_check = ttk.Checkbutton(
+            missing_data_frame,
+            text="排除表2中不存在的数据",
+            variable=self.exclude_missing_var
+        )
+        exclude_missing_check.pack(anchor=tk.W)
+
         ttk.Label(stats_column_frame, text="选择需要统计的列:").pack(anchor=tk.W)
 
         self.stats_column_var = tk.StringVar()
@@ -263,15 +275,25 @@ class PlateAnalyzerApp:
             self.analyzer.load_data(self.data_file_path)
             self.analyzer.load_filter(self.filter_file_path)
 
-            # 执行筛选
-            result_df = self.analyzer.filter_by_column(
-                self.data_column_var.get(),
-                self.filter_column_var.get()
-            )
+            # 根据选项决定执行哪种筛选
+            if self.exclude_missing_var.get():
+                # 筛选出表2中不存在的数据
+                result_df = self.analyzer.find_missing_in_filter(
+                    self.data_column_var.get(),
+                    self.filter_column_var.get()
+                )
+                operation_desc = "查找表2中不存在的数据"
+            else:
+                # 正常筛选（表2中存在的数据）
+                result_df = self.analyzer.filter_by_column(
+                    self.data_column_var.get(),
+                    self.filter_column_var.get()
+                )
+                operation_desc = "筛选表2中存在的数据"
 
             # 显示结果
             self.result_text.delete(1.0, tk.END)
-            self.result_text.insert(tk.END, "=== 筛选结果 ===\n\n")
+            self.result_text.insert(tk.END, f"=== {operation_desc} ===\n\n")
             self.result_text.insert(tk.END, f"原始数据行数: {len(self.analyzer.data_df)}\n")
             self.result_text.insert(tk.END, f"筛选后行数: {len(result_df)}\n")
             self.result_text.insert(tk.END, f"筛选条件数量: {len(self.analyzer.filter_df)}\n\n")

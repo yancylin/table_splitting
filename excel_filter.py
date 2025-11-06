@@ -77,3 +77,23 @@ class ExcelFilter:
         total = df[column_name].sum()
         print(f"列 '{column_name}' 的合计金额为: {total}")
         return total
+
+    def find_missing_in_filter(self, data_column, filter_column):
+        """
+        查找数据表中在筛选条件表中不存在的记录
+
+        参数:
+        data_column: 数据表中的列名
+        filter_column: 筛选条件表中的列名
+
+        返回:
+        DataFrame: 在筛选条件表中不存在的记录
+        """
+        # 获取筛选条件列的所有唯一值
+        filter_values = set(self.filter_df[filter_column].dropna().unique())
+
+        # 筛选出不在筛选条件中的数据
+        missing_mask = ~self.data_df[data_column].isin(filter_values)
+        result_df = self.data_df[missing_mask].copy()
+
+        return result_df
