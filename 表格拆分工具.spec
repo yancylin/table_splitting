@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='表格拆分工具',
+    name='table_splitting',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -38,7 +38,7 @@ exe = EXE(
 )
 app = BUNDLE(
     exe,
-    name='表格拆分工具.app',
+    name='table_splitting.app',
     icon=None,
     bundle_identifier=None,
 )
